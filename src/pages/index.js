@@ -1,23 +1,14 @@
-import {
-	Box,
-	Flex,
-	Grid,
-	Link,
-	List,
-	ListItem,
-	Spacer,
-	Text,
-} from "@chakra-ui/layout";
+import { Box, Flex, Grid, Spacer, Text } from "@chakra-ui/layout";
 import { Button } from "@chakra-ui/button";
 import { AiOutlineFileSearch } from "react-icons/ai";
 import { Image } from "@chakra-ui/image";
 import { Input } from "@chakra-ui/input";
-import { Select } from "@chakra-ui/select";
-import { BsCheckCircle, BsStar, BsChevronRight } from "react-icons/bs";
-import RSelect from "react-select";
-import exampleArbiters from "../data/exampleArbiters";
+import { Checkbox } from "@chakra-ui/checkbox";
+import { useRouter } from "next/router";
+import { SearchSection } from "../compontents/SearchSection";
+import { SearchResultsList } from "../compontents/SearchResultsList";
 
-const countries = [
+export const countries = [
 	{ value: "ghana", label: "Ghana" },
 	{ value: "nigeria", label: "Nigeria" },
 	{ value: "kenya", label: "Kenya" },
@@ -34,111 +25,13 @@ const specjalizacje = [
 	"Prawo własności",
 ];
 
-const getShuffledSpecializations = () => {
+export const getShuffledSpecializations = () => {
 	return specjalizacje.sort((a, b) => 0.5 - Math.random());
 };
 
-const SearchRecommendedElement = ({ nationality, name, surname, location }) => {
-	return (
-		<Flex
-			rounded="lg"
-			border="1px"
-			borderColor="gray.200"
-			height={{ sm: "56", md: "40" }}
-			width="full"
-			mb="4"
-			overflow="hidden"
-			transition="all 0.25s ease"
-			_hover={{
-				cursor: "pointer",
-				shadow: "xl",
-			}}
-		>
-			<Image
-				height="full"
-				src="https://picsum.photos/350"
-				alt="image"
-			></Image>
-			<Box w="full" p="4">
-				<Flex w="full">
-					<Flex alignItems="center" color="green.400">
-						<BsCheckCircle />
-						<Text ml="1">Zweryfikowano</Text>
-					</Flex>
-					<Spacer />
-					<Flex alignItems="center">
-						<Text mr="1">{Math.floor(Math.random() * 10)}</Text>
-
-						<BsStar />
-					</Flex>
-				</Flex>
-				<Text textAlign="left" w="full" fontSize="2xl" mb="1">
-					{name} {surname}{" "}
-					<Text as="span" color="gray.300" fontSize="xl">
-						({location})
-					</Text>
-				</Text>
-				<Box w="full">
-					<Flex flexWrap="wrap">
-						{getShuffledSpecializations().map((spec) => {
-							return (
-								<Text
-									rounded="full"
-									border="1px"
-									borderColor="orange.300"
-									pl="2"
-									pr="2"
-									mr="1"
-									mb="1"
-									fontSize="small"
-									color="orange.300"
-									key={spec}
-								>
-									{spec}
-								</Text>
-							);
-						})}
-					</Flex>
-				</Box>
-				<Box mt="3">
-					<Link>
-						<Flex alignItems="center">
-							Sprawdź profil <BsChevronRight />
-						</Flex>
-					</Link>
-				</Box>
-			</Box>
-		</Flex>
-	);
-};
-
-const SearchResultsList = () => (
-	<Flex p="0" flexDir="column">
-		<Text fontSize="xl" fontWeight="semibold">
-			Rekomendowani arbitrzy
-		</Text>
-		<Flex mt="4" flexDir="column" w="full">
-			{exampleArbiters
-				.slice(1, 6)
-				.map(({ name, surname, location, nationality }) => {
-					return (
-						<SearchRecommendedElement
-							key={name}
-							name={name}
-							surname={surname}
-							nationality={nationality}
-							location={location}
-						></SearchRecommendedElement>
-					);
-				})}
-		</Flex>
-		<Text fontSize="xl" fontWeight="semibold">
-			Pozostali arbitrzy
-		</Text>
-	</Flex>
-);
-
 function HeaderSection() {
+	const router = useRouter();
+
 	return (
 		<Box
 			justifyContent="center"
@@ -179,10 +72,23 @@ function HeaderSection() {
 							<Text color="white">Prisme Search</Text>
 						</Flex>
 						<Spacer />
-						<Button variant="outline" color="white" mr="3">
+						<Button
+							onClick={() => {
+								router.push("/login");
+							}}
+							variant="outline"
+							color="white"
+							mr="3"
+						>
 							Zaloguj się
 						</Button>
-						<Button>Zarejestruj się</Button>
+						<Button
+							onClick={() => {
+								router.push("/register");
+							}}
+						>
+							Zarejestruj się
+						</Button>
 					</Flex>
 					<Flex
 						h="full"
@@ -233,71 +139,6 @@ function HeaderSection() {
 				></Image>
 			</Box>
 		</Box>
-	);
-}
-
-function SearchSection() {
-	return (
-		<Flex
-			id="search"
-			position="relative"
-			bgColor="gray.200"
-			justifyContent="center"
-			h={{ sm: "96", md: "48" }}
-		>
-			<Grid
-				position="absolute"
-				columnGap="4"
-				zIndex="3"
-				top={{
-					sm: "-36",
-					md: "-12",
-				}}
-				templateColumns={{
-					sm: "1fr",
-					md: "repeat(3,1fr)",
-				}}
-				bgColor="white"
-				minH="48"
-				w={{
-					sm: "90%",
-					md: "70%",
-					lg: "5xl",
-				}}
-				shadow="lg"
-				rounded="lg"
-				p="6"
-			>
-				<Flex flexDir="column">
-					<Text>Języki</Text>
-					<RSelect isMulti placeholder="Wybierz języki"></RSelect>
-					<Spacer />
-					<Text>Data</Text>
-					<Input type="date"></Input>
-				</Flex>
-				<Flex flexDir="column">
-					<Text mb="0.5">Lokalizacja</Text>
-					<RSelect options={countries} />
-					<Spacer />
-					<Text mb="0.5">Sąd arbitrażowy</Text>
-					<RSelect options={countries} />
-				</Flex>
-				<Flex flexDir="column">
-					<Text mb="0.5">Kategorie</Text>
-					<RSelect options={countries} isMulti />
-					<Spacer />
-					<Button
-						mt={{
-							sm: 10,
-							md: 0,
-						}}
-						colorScheme="orange"
-					>
-						Wyszukaj
-					</Button>
-				</Flex>
-			</Grid>
-		</Flex>
 	);
 }
 

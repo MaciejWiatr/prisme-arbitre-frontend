@@ -6,7 +6,11 @@ import { Textarea } from "@chakra-ui/textarea";
 import { useState } from "react";
 import RSelect from "react-select";
 import axios from "axios";
+import url from "../helpers/url";
+import useSelectionOptions from "../hooks/useSelectionOptions";
 import useUserStore from "../store/useUserStore";
+import { useRouter } from "next/router";
+import { useToast } from "@chakra-ui/toast";
 
 const countries = [
 	{ value: "1", label: "Ghana" },
@@ -18,15 +22,63 @@ const countries = [
 	{ value: "1", label: "Germany" },
 ];
 
-const UpdateProfileStep = ({ nextStep }) => {
-	const { user, jwt } = useUserStore();
-	const handleRegistration = async (e) => {
+const UpdateProfileSpecializations = ({ nextStep, displayError }) => {
+	const [categoriesOptions] = useSelectionOptions("specialization");
+	const { jwt_data, jwt, refreshUser } = useUserStore();
+	const router = useRouter();
+
+	const handleSubmit = async (e) => {
 		e.preventDefault();
 		const formData = new FormData(e.target);
-
 		const resp = await axios
 			.put(
-				`http://127.0.0.1:8000/api/arbiter/${user.user.arbiter_profile.id}/`,
+				url(`/api/arbiter/${jwt_data.user.arbiter_profile.id}/`),
+				formData,
+				{
+					headers: {
+						Authorization: `Bearer ${jwt}`,
+						"Content-Type": "multipart/form-data",
+					},
+				}
+			)
+			.then(async () => {
+				await refreshUser();
+				router.push("/dashboard");
+			})
+			.catch((error) => {
+				displayError(error.response.data);
+			});
+	};
+
+	return (
+		<form onSubmit={handleSubmit}>
+			<Text mb="2" fontSize="xl">
+				Wypełnij swój profil arbitra (3 / 3)
+			</Text>
+			<Text>Wybierz swoje specjalizacje</Text>
+			<RSelect
+				name="specializations"
+				options={categoriesOptions.map(({ id, name }) => {
+					return { label: name, value: id };
+				})}
+				isMulti
+			/>
+			<Button type="submit" colorScheme="orange" w="full" mt="5">
+				Przejdź dalej
+			</Button>
+		</form>
+	);
+};
+
+const UpdateProfileExperience = ({ nextStep, displayError }) => {
+	const { jwt_data, jwt, refreshUser } = useUserStore();
+
+	const handleSubmit = async (e) => {
+		e.preventDefault();
+		const formData = new FormData(e.target);
+		const resp = await axios
+			.put(
+				url(`/api/arbiter/${jwt_data.user.arbiter_profile.id}/`),
 				formData,
 				{
 					headers: {
@@ -36,10 +88,55 @@ const UpdateProfileStep = ({ nextStep }) => {
 				}
 			)
 			.catch((error) => {
-				console.log(error.response.data);
-				console.log(error.response.status);
+				displayError(error.response.data);
 			});
-		console.log(resp.data);
+		nextStep();
+	};
+
+	return (
+		<form onSubmit={handleSubmit}>
+			<Text mb="2" fontSize="xl">
+				Wypełnij swój profil arbitra (2 / 3)
+			</Text>
+			<Text>Opisz swoje doświadczenie</Text>
+			<Textarea h="full" name="experience" />
+			<Button colorScheme="orange" mt="5" type="submit">
+				Prześlij
+			</Button>
+		</form>
+	);
+};
+
+const UpdateProfileStep = ({ nextStep, displayError }) => {
+	const [languageOptions] = useSelectionOptions("language");
+	const [locationOptions] = useSelectionOptions("location");
+
+	const [courtOptions] = useSelectionOptions("court");
+	const { jwt_data, jwt } = useUserStore();
+	const [loading, setLoading] = useState(false);
+	const handleRegistration = async (e) => {
+		e.preventDefault();
+		setLoading(true);
+		const formData = new FormData(e.target);
+
+		await axios
+			.put(
+				url(`/api/arbiter/${jwt_data.user.arbiter_profile.id}/`),
+				formData,
+				{
+					headers: {
+						Authorization: `Bearer ${jwt}`,
+						"Content-Type": "multipart/form-data",
+					},
+				}
+			)
+			.then(() => {
+				setLoading(false);
+				nextStep();
+			})
+			.catch((error) => {
+				displayError(error.response.data);
+			});
 	};
 
 	return (
@@ -57,15 +154,31 @@ const UpdateProfileStep = ({ nextStep }) => {
 						<Text>Email kontaktowy</Text>
 						<Input name="email" />
 						<Text>Sąd arbitrażowy</Text>
-						<RSelect name="court" options={countries} />
+						<RSelect
+							name="court"
+							options={courtOptions.map(({ id, name }) => {
+								return { label: name, value: id };
+							})}
+						/>
 					</Flex>
 					<Flex flexDir="column">
 						<Text>Narodowość</Text>
 						<Input name="nationality" />
 						<Text>Miasto</Text>
-						<RSelect name="location" options={countries} />
+						<RSelect
+							name="location"
+							options={locationOptions.map(({ id, name }) => {
+								return { label: name, value: id };
+							})}
+						/>
 						<Text>Języki</Text>
-						<RSelect name="languages" isMulti options={countries} />
+						<RSelect
+							name="languages"
+							isMulti
+							options={languageOptions.map(({ id, name }) => {
+								return { label: name, value: id };
+							})}
+						/>
 						<Text>Zdjęcie</Text>
 						<Input name="photo" p="1" type="file" />
 					</Flex>
@@ -74,7 +187,13 @@ const UpdateProfileStep = ({ nextStep }) => {
 				<Textarea name="description" />
 				<Text>Dokument potwierdzający tożsamość</Text>
 				<Input name="verification_document" p="1" type="file" />
-				<Button type="submit" colorScheme="orange" mt="5" w="full">
+				<Button
+					isLoading={loading}
+					type="submit"
+					colorScheme="orange"
+					mt="5"
+					w="full"
+				>
 					Przejdź do następnego kroku
 				</Button>
 			</form>
@@ -82,10 +201,9 @@ const UpdateProfileStep = ({ nextStep }) => {
 	);
 };
 
-const RegisterAccountStep = ({ nextStep }) => {
+const RegisterAccountStep = ({ nextStep, displayError }) => {
 	const { updateUser } = useUserStore();
 	const [isLoading, setLoading] = useState(false);
-	const [response, setResponse] = useState();
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
@@ -93,21 +211,18 @@ const RegisterAccountStep = ({ nextStep }) => {
 		const data = Object.fromEntries(formData);
 		setLoading(true);
 		const resp = await axios
-			.post("http://127.0.0.1:8000/api/user/", data)
+			.post(url("/api/user/"), data)
 			.catch((error) => {
-				console.log(error.response.data);
-				console.log(error.response.status);
+				displayError(error.response.data);
 			});
-		setResponse(resp.data);
 		const jwtResp = await axios
-			.post("http://127.0.0.1:8000/api/token/", data)
-			.catch((error) => {
-				console.log(error.response.data);
-				console.log(error.response.status);
-			});
-		updateUser(jwtResp.data.access, jwtResp.data.refresh);
-		setLoading(false);
-		nextStep();
+			.post(url("/api/token/"), data)
+			.then(({ data }) => {
+				updateUser(data.access, data.refresh);
+				setLoading(false);
+				nextStep();
+			})
+			.catch((error) => {});
 	};
 
 	return (
@@ -134,6 +249,7 @@ const RegisterAccountStep = ({ nextStep }) => {
 };
 
 const RegisterPage = () => {
+	const toast = useToast();
 	const [step, setStep] = useState(0);
 	const nextStep = () => {
 		setStep((s) => s + 1);
@@ -141,7 +257,23 @@ const RegisterPage = () => {
 	const prevStep = () => {
 		setStep((s) => s - 1);
 	};
-	const StepComponent = [RegisterAccountStep, UpdateProfileStep][step];
+	const StepComponent = [
+		RegisterAccountStep,
+		UpdateProfileStep,
+		UpdateProfileExperience,
+		UpdateProfileSpecializations,
+	][step];
+
+	const displayError = (msg) => {
+		if (step > 0) {
+			prevStep();
+		}
+		toast({
+			title: JSON.stringify(msg),
+			status: "error",
+			isClosable: true,
+		});
+	};
 
 	return (
 		<Flex
@@ -163,7 +295,10 @@ const RegisterPage = () => {
 				shadow="lg"
 			>
 				{" "}
-				<StepComponent nextStep={nextStep} />
+				<StepComponent
+					nextStep={nextStep}
+					displayError={displayError}
+				/>
 			</Flex>
 			<Image
 				position="absolute"
