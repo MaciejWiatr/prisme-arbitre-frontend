@@ -7,6 +7,7 @@ import { Checkbox } from "@chakra-ui/checkbox";
 import { useRouter } from "next/router";
 import { SearchSection } from "../compontents/SearchSection";
 import { SearchResultsList } from "../compontents/SearchResultsList";
+import useSearchResults from "../store/useSearchResults";
 
 export const countries = [
 	{ value: "ghana", label: "Ghana" },
@@ -143,6 +144,7 @@ function HeaderSection() {
 }
 
 function SearchResultSection() {
+	const { results } = useSearchResults();
 	return (
 		<Flex as="section" justifyContent="center" p="6">
 			<Box
@@ -152,14 +154,18 @@ function SearchResultSection() {
 					lg: "5xl",
 				}}
 			>
-				<Text fontSize="md">Wyniki wyszukiwania</Text>
-				<Text fontSize="2xl">
-					Znaleziono{" "}
-					<Text as="span" color="primary">
-						39
-					</Text>{" "}
-					pasujących arbitrów
-				</Text>
+				{results.length > 1 && (
+					<>
+						<Text fontSize="md">Wyniki wyszukiwania</Text>
+						<Text fontSize="2xl">
+							Znaleziono{" "}
+							<Text as="span" color="primary">
+								{results.length}
+							</Text>{" "}
+							pasujących arbitrów
+						</Text>
+					</>
+				)}
 				<Grid mt="2" w="full" minH="12" templateColumns="1fr">
 					{/* <Box>
 						<Flex

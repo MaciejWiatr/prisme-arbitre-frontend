@@ -9,6 +9,7 @@ export const SearchRecommendedElement = ({
 	surname,
 	location,
 	photo,
+	verified,
 }) => {
 	const photoSrc = "https://" + photo.slice(9);
 	console.log(photoSrc);
@@ -35,10 +36,13 @@ export const SearchRecommendedElement = ({
 			></Image>
 			<Box w="full" p="4">
 				<Flex w="full">
-					<Flex alignItems="center" color="green.400">
-						<BsCheckCircle />
-						<Text ml="1">Zweryfikowano</Text>
-					</Flex>
+					{verified ? (
+						<Flex alignItems="center" color="green.400">
+							<BsCheckCircle />
+							<Text ml="1">Zweryfikowano</Text>
+						</Flex>
+					) : null}
+
 					<Spacer />
 					<Flex alignItems="center">
 						<Text mr="1">{Math.floor(Math.random() * 10)}</Text>

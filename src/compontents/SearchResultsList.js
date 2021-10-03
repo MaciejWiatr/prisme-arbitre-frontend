@@ -31,6 +31,7 @@ export const SearchResultsList = () => {
 									nationality={nationality}
 									location={location.name}
 									photo={photo.slice(7)}
+									verified={true}
 								></SearchRecommendedElement>
 							);
 						}
@@ -39,7 +40,33 @@ export const SearchResultsList = () => {
 			<Text fontSize="xl" fontWeight="semibold">
 				Pozostali arbitrzy
 			</Text>
-			{/* TODO: DODAĆ MNIEJ REKOMENDOWANYCH */}
+			<Flex mt="4" flexDir="column" w="full">
+				{results
+					.slice(6, 100)
+					.map(
+						({
+							first_name,
+							last_name,
+							nationality,
+							location,
+							photo,
+						}) => {
+							return (
+								<SearchRecommendedElement
+									key={first_name}
+									name={first_name}
+									surname={last_name}
+									nationality={nationality}
+									location={
+										location?.name || "Nieznana lokalizacja"
+									}
+									photo={photo.slice(7)}
+									verified={false}
+								></SearchRecommendedElement>
+							);
+						}
+					)}
+			</Flex>
 		</Flex>
 	);
 };
