@@ -1,24 +1,22 @@
 import { Box, Flex, Link, Spacer, Text } from "@chakra-ui/layout";
 import { Image } from "@chakra-ui/image";
 import { BsCheckCircle, BsStar, BsChevronRight } from "react-icons/bs";
-import { getShuffledSpecializations } from "../pages/index";
 
-export const SearchRecommendedElement = ({
+export const SearchResultElement = ({
 	nationality,
 	name,
 	surname,
 	location,
 	photo,
 	verified,
+	specializations,
 }) => {
 	const photoSrc = "https://" + photo.slice(9);
-	console.log(photoSrc);
 	return (
 		<Flex
 			rounded="lg"
 			border="1px"
 			borderColor="gray.200"
-			height={{ sm: "56", md: "40" }}
 			width="full"
 			mb="4"
 			overflow="hidden"
@@ -28,12 +26,15 @@ export const SearchRecommendedElement = ({
 				shadow: "xl",
 			}}
 		>
-			<Image
-				w="150px"
-				objectFit="cover"
-				src={photoSrc}
-				alt="image"
-			></Image>
+			<Box w="150px">
+				<Image
+					h="full"
+					w="full"
+					objectFit="cover"
+					src={photoSrc}
+					alt="image"
+				></Image>
+			</Box>
 			<Box w="full" p="4">
 				<Flex w="full">
 					{verified ? (
@@ -58,24 +59,28 @@ export const SearchRecommendedElement = ({
 				</Text>
 				<Box w="full">
 					<Flex flexWrap="wrap">
-						{getShuffledSpecializations().map((spec) => {
-							return (
-								<Text
-									rounded="full"
-									border="1px"
-									borderColor="orange.300"
-									pl="2"
-									pr="2"
-									mr="1"
-									mb="1"
-									fontSize="small"
-									color="orange.300"
-									key={spec}
-								>
-									{spec}
-								</Text>
-							);
-						})}
+						{specializations
+							? specializations
+									.slice(0, 3)
+									.map(({ name: specName }) => {
+										return (
+											<Text
+												rounded="full"
+												border="1px"
+												borderColor="orange.300"
+												pl="2"
+												pr="2"
+												mr="1"
+												mb="1"
+												fontSize="small"
+												color="orange.300"
+												key={specName}
+											>
+												{specName}
+											</Text>
+										);
+									})
+							: null}
 					</Flex>
 				</Box>
 				<Box mt="3">

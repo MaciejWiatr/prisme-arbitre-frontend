@@ -1,8 +1,6 @@
 import { Flex, Text } from "@chakra-ui/layout";
-import exampleArbiters from "../data/exampleArbiters";
-import { SearchRecommendedElement } from "./SearchRecommendedElement";
+import { SearchResultElement } from "./SearchResultElement";
 import useSearchResults from "../store/useSearchResults";
-import url from "../helpers/url";
 
 export const SearchResultsList = () => {
 	const { results } = useSearchResults();
@@ -22,17 +20,19 @@ export const SearchResultsList = () => {
 							nationality,
 							location,
 							photo,
+							specializations,
 						}) => {
 							return (
-								<SearchRecommendedElement
-									key={first_name}
+								<SearchResultElement
+									key={`${first_name}${last_name}`}
 									name={first_name}
 									surname={last_name}
 									nationality={nationality}
 									location={location.name}
 									photo={photo.slice(7)}
 									verified={true}
-								></SearchRecommendedElement>
+									specializations={specializations}
+								></SearchResultElement>
 							);
 						}
 					)}
@@ -52,7 +52,7 @@ export const SearchResultsList = () => {
 							photo,
 						}) => {
 							return (
-								<SearchRecommendedElement
+								<SearchResultElement
 									key={first_name}
 									name={first_name}
 									surname={last_name}
@@ -62,7 +62,7 @@ export const SearchResultsList = () => {
 									}
 									photo={photo.slice(7)}
 									verified={false}
-								></SearchRecommendedElement>
+								></SearchResultElement>
 							);
 						}
 					)}

@@ -2,7 +2,6 @@ import { Flex, Grid, Spacer, Text } from "@chakra-ui/layout";
 import { Button } from "@chakra-ui/button";
 import RSelect from "react-select";
 import { Select } from "@chakra-ui/select";
-import { countries } from "../pages/index";
 import useSelectionOptions from "../hooks/useSelectionOptions";
 import { useRef, useState } from "react";
 import axios from "axios";
@@ -10,7 +9,7 @@ import url from "../helpers/url";
 import useSearchResults from "../store/useSearchResults";
 
 export function SearchSection() {
-	const { setResults } = useSearchResults();
+	const { setResults, setLoading } = useSearchResults();
 	const [languageOptions] = useSelectionOptions("language");
 	const [locationOptions] = useSelectionOptions("location");
 	const [categoriesOptions] = useSelectionOptions("specialization");
@@ -33,6 +32,7 @@ export function SearchSection() {
 			court: courtRef.current.getValue().map(({ value }) => value),
 			degree: degreeRef.current.value,
 		};
+		setLoading(true);
 		const resp = await axios.get(
 			url(
 				`/api/arbiter/?court=${data.court}&location=${
@@ -44,8 +44,8 @@ export function SearchSection() {
 				)}&degree=${data.degree}`
 			)
 		);
-
 		setResults(resp.data);
+		setLoading(false);
 	};
 
 	return (
@@ -55,14 +55,15 @@ export function SearchSection() {
 				position="relative"
 				bgColor="gray.200"
 				justifyContent="center"
-				h={{ sm: "96", md: "48" }}
+				p={[2, 2, 0]}
+				h={{ sm: "initial", md: "52" }}
 			>
 				<Grid
-					position="absolute"
+					position={["relative", "relative", "absolute"]}
 					columnGap="4"
 					zIndex="3"
 					top={{
-						sm: "-36",
+						sm: "-8",
 						md: "-12",
 					}}
 					templateColumns={{
@@ -71,11 +72,8 @@ export function SearchSection() {
 					}}
 					bgColor="white"
 					minH="48"
-					w={{
-						sm: "90%",
-						md: "70%",
-						lg: "5xl",
-					}}
+					maxW="90%"
+					w={["90%", "80%", "5xl"]}
 					shadow="lg"
 					rounded="lg"
 					p="6"
@@ -129,10 +127,7 @@ export function SearchSection() {
 						<Spacer />
 						<Button
 							type="submit"
-							mt={{
-								sm: 10,
-								md: 0,
-							}}
+							mt={[5, 5, 0]}
 							colorScheme="orange"
 						>
 							Wyszukaj

@@ -12,16 +12,6 @@ import useUserStore from "../store/useUserStore";
 import { useRouter } from "next/router";
 import { useToast } from "@chakra-ui/toast";
 
-const countries = [
-	{ value: "1", label: "Ghana" },
-	{ value: "2", label: "Nigeria" },
-	{ value: "1", label: "Kenya" },
-	{ value: "2", label: "South Africa" },
-	{ value: "1", label: "United States" },
-	{ value: "2", label: "Canada" },
-	{ value: "1", label: "Germany" },
-];
-
 const UpdateProfileSpecializations = ({ nextStep, displayError }) => {
 	const [categoriesOptions] = useSelectionOptions("specialization");
 	const { jwt_data, jwt, refreshUser } = useUserStore();
